@@ -1,0 +1,62 @@
+{
+	"name": "drizzle-schema-generator",
+	"version": "1.0.0",
+	"description": "Library to generate Drizzle ORM code strings from TypeScript definitions.",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist/**/*",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"test": "vitest",
+		"test:ui": "vitest --ui",
+		"test:run": "vitest run",
+		"test:coverage": "vitest run --coverage",
+		"prepublishOnly": "npm run test:run && npm run build",
+		"prepare": "npm run build"
+	},
+	"keywords": [
+		"drizzle",
+		"orm",
+		"schema",
+		"generator",
+		"typescript",
+		"code-generation",
+		"database",
+		"postgresql",
+		"mysql",
+		"sqlite"
+	],
+	"author": "Malldre",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Malldre/Drizzle-Generator.git"
+	},
+	"homepage": "https://github.com/Malldre/Drizzle-Generator#readme",
+	"bugs": {
+		"url": "https://github.com/Malldre/Drizzle-Generator/issues"
+	},
+	"dependencies": {
+		"drizzle-orm": "^0.31.2",
+		"typescript": "^5.4.5",
+		"winston": "^3.18.3"
+	},
+	"devDependencies": {
+		"@types/node": "^20.12.12",
+		"@types/winston": "^2.4.4",
+		"@vitest/ui": "^3.2.4",
+		"ts-node": "^10.9.2",
+		"vitest": "^3.2.4"
+	},
+	"exports": {
+		".": "./dist/index.js",
+		"./definitions": "./dist/definitions/index.js",
+		"./generators": "./dist/generators/index.js",
+		"./utils": "./dist/utils/index.js"
+	}
+}

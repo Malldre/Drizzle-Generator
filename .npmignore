@@ -1,0 +1,26 @@
+# Source files
+src/
+tests/
+*.test.ts
+*.test.js
+
+# Development files
+tsconfig.json
+vitest.config.ts
+.github/
+.git/
+.gitignore
+
+# Logs and temporary files
+*.log
+.DS_Store
+.env
+
+# Development dependencies
+node_modules/
+
+# Documentation (keep only essential)
+# README.md should be included
+
+# Build artifacts we don't want
+*.js.map
