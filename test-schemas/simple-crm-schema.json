@@ -1,0 +1,241 @@
+{
+	"name": "Simple CRM Schema",
+	"description": "Basic Customer Relationship Management system",
+	"enums": [
+		{
+			"name": "LeadStatus",
+			"values": ["new", "contacted", "qualified", "proposal", "negotiation", "closed_won", "closed_lost"]
+		},
+		{
+			"name": "CompanySize",
+			"values": ["startup", "small", "medium", "large", "enterprise"]
+		},
+		{
+			"name": "ActivityType",
+			"values": ["call", "email", "meeting", "task", "note"]
+		}
+	],
+	"helpers": [
+		{
+			"name": "ContactInfo",
+			"columns": [
+				{
+					"name": "email",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				},
+				{
+					"name": "phone",
+					"type": "string",
+					"options": {
+						"length": 20
+					}
+				},
+				{
+					"name": "website",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				}
+			]
+		}
+	],
+	"tables": [
+		{
+			"name": "Companies",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "name",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "industry",
+					"type": "string",
+					"options": {
+						"length": 100
+					}
+				},
+				{
+					"name": "size",
+					"options": {
+						"enumValues": "CompanySize"
+					}
+				},
+				{
+					"name": "revenue",
+					"type": "number"
+				}
+			],
+			"helperReferences": ["ContactInfo"]
+		},
+		{
+			"name": "Contacts",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "firstName",
+					"type": "string",
+					"options": {
+						"length": 50,
+						"notNull": true
+					}
+				},
+				{
+					"name": "lastName",
+					"type": "string",
+					"options": {
+						"length": 50,
+						"notNull": true
+					}
+				},
+				{
+					"name": "title",
+					"type": "string",
+					"options": {
+						"length": 100
+					}
+				},
+				{
+					"name": "companyId",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "companies",
+							"column": "id"
+						}
+					}
+				}
+			],
+			"helperReferences": ["ContactInfo"]
+		},
+		{
+			"name": "Leads",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "contactId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "contacts",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "status",
+					"options": {
+						"enumValues": "LeadStatus",
+						"default": "new"
+					}
+				},
+				{
+					"name": "value",
+					"type": "number"
+				},
+				{
+					"name": "probability",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "source",
+					"type": "string",
+					"options": {
+						"length": 100
+					}
+				},
+				{
+					"name": "notes",
+					"type": "text"
+				}
+			]
+		},
+		{
+			"name": "Activities",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "contactId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "contacts",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "type",
+					"options": {
+						"enumValues": "ActivityType",
+						"notNull": true
+					}
+				},
+				{
+					"name": "subject",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "description",
+					"type": "text"
+				},
+				{
+					"name": "scheduledAt",
+					"type": "date"
+				},
+				{
+					"name": "completedAt",
+					"type": "date"
+				},
+				{
+					"name": "isCompleted",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				}
+			]
+		}
+	]
+}

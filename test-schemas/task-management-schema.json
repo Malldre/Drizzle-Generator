@@ -1,0 +1,906 @@
+{
+	"name": "Task Management System",
+	"description": "Project and task management system with teams, projects, tasks, and time tracking",
+	"enums": [
+		{
+			"name": "TaskStatus",
+			"values": ["todo", "in_progress", "review", "testing", "done", "cancelled"]
+		},
+		{
+			"name": "TaskPriority",
+			"values": ["low", "medium", "high", "urgent", "critical"]
+		},
+		{
+			"name": "ProjectStatus",
+			"values": ["planning", "active", "on_hold", "completed", "cancelled"]
+		},
+		{
+			"name": "TeamMemberRole",
+			"values": ["owner", "admin", "manager", "developer", "designer", "tester", "viewer"]
+		},
+		{
+			"name": "NotificationType",
+			"values": ["task_assigned", "task_completed", "comment_added", "deadline_approaching", "project_updated"]
+		}
+	],
+	"helpers": [
+		{
+			"name": "AuditFields",
+			"columns": [
+				{
+					"name": "createdAt",
+					"type": "date",
+					"options": {
+						"notNull": true,
+						"default": "sql.now()"
+					}
+				},
+				{
+					"name": "updatedAt",
+					"type": "date",
+					"options": {
+						"default": "sql.now()"
+					}
+				},
+				{
+					"name": "createdBy",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "updatedBy",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "ArchivableFields",
+			"columns": [
+				{
+					"name": "isArchived",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				},
+				{
+					"name": "archivedAt",
+					"type": "date"
+				},
+				{
+					"name": "archivedBy",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				}
+			]
+		}
+	],
+	"tables": [
+		{
+			"name": "Users",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "email",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "username",
+					"type": "string",
+					"options": {
+						"length": 50,
+						"notNull": true
+					}
+				},
+				{
+					"name": "firstName",
+					"type": "string",
+					"options": {
+						"length": 50,
+						"notNull": true
+					}
+				},
+				{
+					"name": "lastName",
+					"type": "string",
+					"options": {
+						"length": 50,
+						"notNull": true
+					}
+				},
+				{
+					"name": "avatar",
+					"type": "string",
+					"options": {
+						"length": 500
+					}
+				},
+				{
+					"name": "timezone",
+					"type": "string",
+					"options": {
+						"length": 50,
+						"default": "UTC"
+					}
+				},
+				{
+					"name": "dateFormat",
+					"type": "string",
+					"options": {
+						"length": 20,
+						"default": "MM/DD/YYYY"
+					}
+				},
+				{
+					"name": "timeFormat",
+					"type": "string",
+					"options": {
+						"length": 10,
+						"default": "12h"
+					}
+				},
+				{
+					"name": "language",
+					"type": "string",
+					"options": {
+						"length": 5,
+						"default": "en"
+					}
+				},
+				{
+					"name": "isActive",
+					"type": "boolean",
+					"options": {
+						"default": true
+					}
+				},
+				{
+					"name": "lastLoginAt",
+					"type": "date"
+				},
+				{
+					"name": "emailVerifiedAt",
+					"type": "date"
+				}
+			],
+			"helperReferences": ["AuditFields"]
+		},
+		{
+			"name": "Teams",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "name",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "description",
+					"type": "text"
+				},
+				{
+					"name": "color",
+					"type": "string",
+					"options": {
+						"length": 7,
+						"default": "#3B82F6"
+					}
+				},
+				{
+					"name": "avatar",
+					"type": "string",
+					"options": {
+						"length": 500
+					}
+				},
+				{
+					"name": "settings",
+					"type": "json"
+				},
+				{
+					"name": "memberCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "projectCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				}
+			],
+			"helperReferences": ["AuditFields", "ArchivableFields"]
+		},
+		{
+			"name": "TeamMembers",
+			"columns": [
+				{
+					"name": "teamId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "teams",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "userId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "role",
+					"options": {
+						"enumValues": "TeamMemberRole",
+						"default": "viewer"
+					}
+				},
+				{
+					"name": "joinedAt",
+					"type": "date",
+					"options": {
+						"notNull": true,
+						"default": "sql.now()"
+					}
+				},
+				{
+					"name": "invitedBy",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				}
+			],
+			"compositePrimaryKey": ["teamId", "userId"]
+		},
+		{
+			"name": "Projects",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "name",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "key",
+					"type": "string",
+					"options": {
+						"length": 10,
+						"notNull": true
+					}
+				},
+				{
+					"name": "description",
+					"type": "text"
+				},
+				{
+					"name": "teamId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "teams",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "status",
+					"options": {
+						"enumValues": "ProjectStatus",
+						"default": "planning"
+					}
+				},
+				{
+					"name": "color",
+					"type": "string",
+					"options": {
+						"length": 7,
+						"default": "#10B981"
+					}
+				},
+				{
+					"name": "icon",
+					"type": "string",
+					"options": {
+						"length": 50
+					}
+				},
+				{
+					"name": "startDate",
+					"type": "date"
+				},
+				{
+					"name": "endDate",
+					"type": "date"
+				},
+				{
+					"name": "deadline",
+					"type": "date"
+				},
+				{
+					"name": "budget",
+					"type": "number"
+				},
+				{
+					"name": "progress",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "taskCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "completedTaskCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "memberCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "settings",
+					"type": "json"
+				}
+			],
+			"helperReferences": ["AuditFields", "ArchivableFields"]
+		},
+		{
+			"name": "ProjectMembers",
+			"columns": [
+				{
+					"name": "projectId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "projects",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "userId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "role",
+					"options": {
+						"enumValues": "TeamMemberRole",
+						"default": "developer"
+					}
+				},
+				{
+					"name": "joinedAt",
+					"type": "date",
+					"options": {
+						"notNull": true,
+						"default": "sql.now()"
+					}
+				},
+				{
+					"name": "hourlyRate",
+					"type": "number"
+				}
+			],
+			"compositePrimaryKey": ["projectId", "userId"]
+		},
+		{
+			"name": "Milestones",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "name",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "description",
+					"type": "text"
+				},
+				{
+					"name": "projectId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "projects",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "dueDate",
+					"type": "date"
+				},
+				{
+					"name": "completedAt",
+					"type": "date"
+				},
+				{
+					"name": "progress",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "taskCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "completedTaskCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "sortOrder",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				}
+			],
+			"helperReferences": ["AuditFields"]
+		},
+		{
+			"name": "Tasks",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "title",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "description",
+					"type": "text"
+				},
+				{
+					"name": "projectId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "projects",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "milestoneId",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "milestones",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "assigneeId",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "reporterId",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "parentTaskId",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "tasks",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "status",
+					"options": {
+						"enumValues": "TaskStatus",
+						"default": "todo"
+					}
+				},
+				{
+					"name": "priority",
+					"options": {
+						"enumValues": "TaskPriority",
+						"default": "medium"
+					}
+				},
+				{
+					"name": "labels",
+					"type": "json"
+				},
+				{
+					"name": "estimatedHours",
+					"type": "number"
+				},
+				{
+					"name": "actualHours",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "dueDate",
+					"type": "date"
+				},
+				{
+					"name": "startDate",
+					"type": "date"
+				},
+				{
+					"name": "completedAt",
+					"type": "date"
+				},
+				{
+					"name": "sortOrder",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "commentCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "attachmentCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "subtaskCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "completedSubtaskCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				}
+			],
+			"helperReferences": ["AuditFields", "ArchivableFields"]
+		},
+		{
+			"name": "TaskComments",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "taskId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "tasks",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "authorId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "content",
+					"type": "text",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "isInternal",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				},
+				{
+					"name": "mentionedUsers",
+					"type": "json"
+				},
+				{
+					"name": "attachments",
+					"type": "json"
+				}
+			],
+			"helperReferences": ["AuditFields"]
+		},
+		{
+			"name": "TimeEntries",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "taskId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "tasks",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "userId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "description",
+					"type": "text"
+				},
+				{
+					"name": "hours",
+					"type": "number",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "startTime",
+					"type": "date"
+				},
+				{
+					"name": "endTime",
+					"type": "date"
+				},
+				{
+					"name": "date",
+					"type": "date",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "isBillable",
+					"type": "boolean",
+					"options": {
+						"default": true
+					}
+				},
+				{
+					"name": "hourlyRate",
+					"type": "number"
+				},
+				{
+					"name": "isApproved",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				},
+				{
+					"name": "approvedBy",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "approvedAt",
+					"type": "date"
+				}
+			],
+			"helperReferences": ["AuditFields"]
+		},
+		{
+			"name": "Notifications",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "userId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "type",
+					"options": {
+						"enumValues": "NotificationType",
+						"notNull": true
+					}
+				},
+				{
+					"name": "title",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "message",
+					"type": "text"
+				},
+				{
+					"name": "data",
+					"type": "json"
+				},
+				{
+					"name": "isRead",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				},
+				{
+					"name": "readAt",
+					"type": "date"
+				},
+				{
+					"name": "actionUrl",
+					"type": "string",
+					"options": {
+						"length": 500
+					}
+				}
+			],
+			"helperReferences": ["AuditFields"]
+		}
+	]
+}

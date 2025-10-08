@@ -2,7 +2,6 @@ export * from "./ForeignKeyDefinition.js";
 export * from "./ColumnDefinition.js";
 export * from "./HelperDefinition.js";
 export * from "./TableDefinition.js";
-export * from "./ViewDefinition.js";
 export * from "./EnumDefinition.js";
 export * from "./ColumnsOptions.js";
 export * from "./ReferenceDefinition.js";

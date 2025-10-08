@@ -1,0 +1,833 @@
+{
+	"name": "Blog Platform Schema",
+	"description": "Complete blog platform with posts, comments, categories, and user management",
+	"enums": [
+		{
+			"name": "PostStatus",
+			"values": ["draft", "published", "archived", "scheduled"]
+		},
+		{
+			"name": "CommentStatus",
+			"values": ["pending", "approved", "rejected", "spam"]
+		},
+		{
+			"name": "UserType",
+			"values": ["admin", "editor", "author", "subscriber"]
+		},
+		{
+			"name": "MediaType",
+			"values": ["image", "video", "audio", "document"]
+		}
+	],
+	"helpers": [
+		{
+			"name": "TimestampColumns",
+			"columns": [
+				{
+					"name": "createdAt",
+					"type": "date",
+					"options": {
+						"notNull": true,
+						"default": "sql.now()"
+					}
+				},
+				{
+					"name": "updatedAt",
+					"type": "date",
+					"options": {
+						"default": "sql.now()"
+					}
+				}
+			]
+		},
+		{
+			"name": "SEOColumns",
+			"columns": [
+				{
+					"name": "metaTitle",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				},
+				{
+					"name": "metaDescription",
+					"type": "text"
+				},
+				{
+					"name": "metaKeywords",
+					"type": "string",
+					"options": {
+						"length": 500
+					}
+				},
+				{
+					"name": "ogTitle",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				},
+				{
+					"name": "ogDescription",
+					"type": "text"
+				},
+				{
+					"name": "ogImage",
+					"type": "string",
+					"options": {
+						"length": 500
+					}
+				}
+			]
+		}
+	],
+	"tables": [
+		{
+			"name": "Authors",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "username",
+					"type": "string",
+					"options": {
+						"length": 50,
+						"notNull": true
+					}
+				},
+				{
+					"name": "email",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "displayName",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "firstName",
+					"type": "string",
+					"options": {
+						"length": 50
+					}
+				},
+				{
+					"name": "lastName",
+					"type": "string",
+					"options": {
+						"length": 50
+					}
+				},
+				{
+					"name": "bio",
+					"type": "text"
+				},
+				{
+					"name": "avatar",
+					"type": "string",
+					"options": {
+						"length": 500
+					}
+				},
+				{
+					"name": "website",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				},
+				{
+					"name": "socialMedia",
+					"type": "json"
+				},
+				{
+					"name": "userType",
+					"options": {
+						"enumValues": "UserType",
+						"default": "subscriber"
+					}
+				},
+				{
+					"name": "isActive",
+					"type": "boolean",
+					"options": {
+						"default": true
+					}
+				},
+				{
+					"name": "emailVerified",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				},
+				{
+					"name": "lastLoginAt",
+					"type": "date"
+				}
+			],
+			"helperReferences": ["TimestampColumns"]
+		},
+		{
+			"name": "Categories",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "name",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "slug",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "description",
+					"type": "text"
+				},
+				{
+					"name": "color",
+					"type": "string",
+					"options": {
+						"length": 7,
+						"default": "#333333"
+					}
+				},
+				{
+					"name": "parentId",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "categories",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "sortOrder",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "postCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				}
+			],
+			"helperReferences": ["TimestampColumns", "SEOColumns"]
+		},
+		{
+			"name": "Tags",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "name",
+					"type": "string",
+					"options": {
+						"length": 50,
+						"notNull": true
+					}
+				},
+				{
+					"name": "slug",
+					"type": "string",
+					"options": {
+						"length": 50,
+						"notNull": true
+					}
+				},
+				{
+					"name": "description",
+					"type": "text"
+				},
+				{
+					"name": "color",
+					"type": "string",
+					"options": {
+						"length": 7
+					}
+				},
+				{
+					"name": "postCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				}
+			],
+			"helperReferences": ["TimestampColumns"]
+		},
+		{
+			"name": "Posts",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "title",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "slug",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "excerpt",
+					"type": "text"
+				},
+				{
+					"name": "content",
+					"type": "text",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "featuredImage",
+					"type": "string",
+					"options": {
+						"length": 500
+					}
+				},
+				{
+					"name": "authorId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "authors",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "categoryId",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "categories",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "status",
+					"options": {
+						"enumValues": "PostStatus",
+						"default": "draft"
+					}
+				},
+				{
+					"name": "publishedAt",
+					"type": "date"
+				},
+				{
+					"name": "scheduledAt",
+					"type": "date"
+				},
+				{
+					"name": "viewCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "likeCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "commentCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "shareCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "readingTime",
+					"type": "number"
+				},
+				{
+					"name": "isFeatured",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				},
+				{
+					"name": "allowComments",
+					"type": "boolean",
+					"options": {
+						"default": true
+					}
+				},
+				{
+					"name": "isPinned",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				}
+			],
+			"helperReferences": ["TimestampColumns", "SEOColumns"]
+		},
+		{
+			"name": "PostTags",
+			"columns": [
+				{
+					"name": "postId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "posts",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "tagId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "tags",
+							"column": "id"
+						}
+					}
+				}
+			],
+			"compositePrimaryKey": ["postId", "tagId"]
+		},
+		{
+			"name": "Comments",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "postId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "posts",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "authorId",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "authors",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "parentId",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "comments",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "authorName",
+					"type": "string",
+					"options": {
+						"length": 100
+					}
+				},
+				{
+					"name": "authorEmail",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				},
+				{
+					"name": "authorWebsite",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				},
+				{
+					"name": "content",
+					"type": "text",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "status",
+					"options": {
+						"enumValues": "CommentStatus",
+						"default": "pending"
+					}
+				},
+				{
+					"name": "ipAddress",
+					"type": "string",
+					"options": {
+						"length": 45
+					}
+				},
+				{
+					"name": "userAgent",
+					"type": "text"
+				},
+				{
+					"name": "likeCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "replyCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "approvedAt",
+					"type": "date"
+				}
+			],
+			"helperReferences": ["TimestampColumns"]
+		},
+		{
+			"name": "Media",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "filename",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "originalFilename",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "url",
+					"type": "string",
+					"options": {
+						"length": 500,
+						"notNull": true
+					}
+				},
+				{
+					"name": "thumbnailUrl",
+					"type": "string",
+					"options": {
+						"length": 500
+					}
+				},
+				{
+					"name": "type",
+					"options": {
+						"enumValues": "MediaType",
+						"notNull": true
+					}
+				},
+				{
+					"name": "mimeType",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "fileSize",
+					"type": "number",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "width",
+					"type": "number"
+				},
+				{
+					"name": "height",
+					"type": "number"
+				},
+				{
+					"name": "duration",
+					"type": "number"
+				},
+				{
+					"name": "altText",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				},
+				{
+					"name": "caption",
+					"type": "text"
+				},
+				{
+					"name": "description",
+					"type": "text"
+				},
+				{
+					"name": "authorId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "authors",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "usageCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				}
+			],
+			"helperReferences": ["TimestampColumns"]
+		},
+		{
+			"name": "PostMedia",
+			"columns": [
+				{
+					"name": "postId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "posts",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "mediaId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "media",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "sortOrder",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				}
+			],
+			"compositePrimaryKey": ["postId", "mediaId"]
+		},
+		{
+			"name": "Newsletters",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "subject",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "content",
+					"type": "text",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "status",
+					"options": {
+						"enumValues": "PostStatus",
+						"default": "draft"
+					}
+				},
+				{
+					"name": "sentAt",
+					"type": "date"
+				},
+				{
+					"name": "scheduledAt",
+					"type": "date"
+				},
+				{
+					"name": "subscriberCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "openCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "clickCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				}
+			],
+			"helperReferences": ["TimestampColumns"]
+		},
+		{
+			"name": "Subscribers",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "email",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "firstName",
+					"type": "string",
+					"options": {
+						"length": 50
+					}
+				},
+				{
+					"name": "lastName",
+					"type": "string",
+					"options": {
+						"length": 50
+					}
+				},
+				{
+					"name": "isActive",
+					"type": "boolean",
+					"options": {
+						"default": true
+					}
+				},
+				{
+					"name": "confirmedAt",
+					"type": "date"
+				},
+				{
+					"name": "unsubscribedAt",
+					"type": "date"
+				},
+				{
+					"name": "preferences",
+					"type": "json"
+				}
+			],
+			"helperReferences": ["TimestampColumns"]
+		}
+	]
+}

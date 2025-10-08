@@ -1,0 +1,838 @@
+{
+	"name": "E-commerce Database Schema",
+	"description": "Complete e-commerce database schema with users, products, orders, and categories",
+	"enums": [
+		{
+			"name": "UserRole",
+			"values": ["admin", "customer", "seller", "moderator"]
+		},
+		{
+			"name": "OrderStatus",
+			"values": ["pending", "processing", "shipped", "delivered", "cancelled", "returned"]
+		},
+		{
+			"name": "PaymentStatus",
+			"values": ["pending", "completed", "failed", "refunded"]
+		},
+		{
+			"name": "ProductStatus",
+			"values": ["active", "inactive", "out_of_stock", "discontinued"]
+		}
+	],
+	"helpers": [
+		{
+			"name": "AuditColumns",
+			"columns": [
+				{
+					"name": "createdAt",
+					"type": "date",
+					"options": {
+						"notNull": true,
+						"default": "sql.now()"
+					}
+				},
+				{
+					"name": "updatedAt",
+					"type": "date",
+					"options": {
+						"default": "sql.now()"
+					}
+				},
+				{
+					"name": "createdBy",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "AddressColumns",
+			"columns": [
+				{
+					"name": "street",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "city",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "state",
+					"type": "string",
+					"options": {
+						"length": 100
+					}
+				},
+				{
+					"name": "postalCode",
+					"type": "string",
+					"options": {
+						"length": 20
+					}
+				},
+				{
+					"name": "country",
+					"type": "string",
+					"options": {
+						"length": 2,
+						"notNull": true,
+						"default": "US"
+					}
+				}
+			]
+		},
+		{
+			"name": "MoneyColumns",
+			"columns": [
+				{
+					"name": "amount",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"default": 0
+					}
+				},
+				{
+					"name": "currency",
+					"type": "string",
+					"options": {
+						"length": 3,
+						"notNull": true,
+						"default": "USD"
+					}
+				}
+			]
+		}
+	],
+	"tables": [
+		{
+			"name": "Users",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "email",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "firstName",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "lastName",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "username",
+					"type": "string",
+					"options": {
+						"length": 50
+					}
+				},
+				{
+					"name": "passwordHash",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "role",
+					"options": {
+						"enumValues": "UserRole",
+						"default": "customer"
+					}
+				},
+				{
+					"name": "isActive",
+					"type": "boolean",
+					"options": {
+						"default": true
+					}
+				},
+				{
+					"name": "emailVerified",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				},
+				{
+					"name": "phone",
+					"type": "string",
+					"options": {
+						"length": 20
+					}
+				},
+				{
+					"name": "dateOfBirth",
+					"type": "date"
+				},
+				{
+					"name": "lastLoginAt",
+					"type": "date"
+				}
+			],
+			"helperReferences": ["AuditColumns"]
+		},
+		{
+			"name": "Categories",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "name",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "slug",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "description",
+					"type": "text"
+				},
+				{
+					"name": "parentId",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "categories",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "sortOrder",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "isActive",
+					"type": "boolean",
+					"options": {
+						"default": true
+					}
+				}
+			],
+			"helperReferences": ["AuditColumns"]
+		},
+		{
+			"name": "Products",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "name",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "slug",
+					"type": "string",
+					"options": {
+						"length": 255,
+						"notNull": true
+					}
+				},
+				{
+					"name": "description",
+					"type": "text"
+				},
+				{
+					"name": "shortDescription",
+					"type": "string",
+					"options": {
+						"length": 500
+					}
+				},
+				{
+					"name": "sku",
+					"type": "string",
+					"options": {
+						"length": 100,
+						"notNull": true
+					}
+				},
+				{
+					"name": "price",
+					"type": "number",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "compareAtPrice",
+					"type": "number"
+				},
+				{
+					"name": "costPrice",
+					"type": "number"
+				},
+				{
+					"name": "weight",
+					"type": "number"
+				},
+				{
+					"name": "dimensions",
+					"type": "json"
+				},
+				{
+					"name": "categoryId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "categories",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "sellerId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "status",
+					"options": {
+						"enumValues": "ProductStatus",
+						"default": "active"
+					}
+				},
+				{
+					"name": "stockQuantity",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "lowStockThreshold",
+					"type": "number",
+					"options": {
+						"default": 10
+					}
+				},
+				{
+					"name": "trackInventory",
+					"type": "boolean",
+					"options": {
+						"default": true
+					}
+				},
+				{
+					"name": "allowBackorder",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				},
+				{
+					"name": "requiresShipping",
+					"type": "boolean",
+					"options": {
+						"default": true
+					}
+				},
+				{
+					"name": "isFeatured",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				},
+				{
+					"name": "metaTitle",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				},
+				{
+					"name": "metaDescription",
+					"type": "text"
+				},
+				{
+					"name": "tags",
+					"type": "json"
+				}
+			],
+			"helperReferences": ["AuditColumns"]
+		},
+		{
+			"name": "ProductImages",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "productId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "products",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "url",
+					"type": "string",
+					"options": {
+						"length": 500,
+						"notNull": true
+					}
+				},
+				{
+					"name": "altText",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				},
+				{
+					"name": "sortOrder",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "isPrimary",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				}
+			],
+			"helperReferences": ["AuditColumns"]
+		},
+		{
+			"name": "Orders",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "orderNumber",
+					"type": "string",
+					"options": {
+						"length": 50,
+						"notNull": true
+					}
+				},
+				{
+					"name": "customerId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "status",
+					"options": {
+						"enumValues": "OrderStatus",
+						"default": "pending"
+					}
+				},
+				{
+					"name": "subtotal",
+					"type": "number",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "taxAmount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "shippingAmount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "discountAmount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				},
+				{
+					"name": "totalAmount",
+					"type": "number",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "currency",
+					"type": "string",
+					"options": {
+						"length": 3,
+						"notNull": true,
+						"default": "USD"
+					}
+				},
+				{
+					"name": "notes",
+					"type": "text"
+				},
+				{
+					"name": "shippedAt",
+					"type": "date"
+				},
+				{
+					"name": "deliveredAt",
+					"type": "date"
+				}
+			],
+			"helperReferences": ["AuditColumns", "AddressColumns"]
+		},
+		{
+			"name": "OrderItems",
+			"columns": [
+				{
+					"name": "orderId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "orders",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "productId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "products",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "quantity",
+					"type": "number",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "unitPrice",
+					"type": "number",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "totalPrice",
+					"type": "number",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "productSnapshot",
+					"type": "json"
+				}
+			],
+			"compositePrimaryKey": ["orderId", "productId"]
+		},
+		{
+			"name": "Payments",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "orderId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "orders",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "paymentMethod",
+					"type": "string",
+					"options": {
+						"length": 50,
+						"notNull": true
+					}
+				},
+				{
+					"name": "amount",
+					"type": "number",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "currency",
+					"type": "string",
+					"options": {
+						"length": 3,
+						"notNull": true
+					}
+				},
+				{
+					"name": "status",
+					"options": {
+						"enumValues": "PaymentStatus",
+						"default": "pending"
+					}
+				},
+				{
+					"name": "transactionId",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				},
+				{
+					"name": "gatewayResponse",
+					"type": "json"
+				},
+				{
+					"name": "processedAt",
+					"type": "date"
+				},
+				{
+					"name": "failureReason",
+					"type": "text"
+				}
+			],
+			"helperReferences": ["AuditColumns"]
+		},
+		{
+			"name": "ShoppingCart",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "userId",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "sessionId",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				},
+				{
+					"name": "productId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "products",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "quantity",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"default": 1
+					}
+				},
+				{
+					"name": "addedAt",
+					"type": "date",
+					"options": {
+						"notNull": true,
+						"default": "sql.now()"
+					}
+				}
+			]
+		},
+		{
+			"name": "Reviews",
+			"columns": [
+				{
+					"name": "id",
+					"type": "serial",
+					"options": {
+						"primaryKey": true
+					}
+				},
+				{
+					"name": "productId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "products",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "userId",
+					"type": "number",
+					"options": {
+						"notNull": true,
+						"references": {
+							"table": "users",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "orderId",
+					"type": "number",
+					"options": {
+						"references": {
+							"table": "orders",
+							"column": "id"
+						}
+					}
+				},
+				{
+					"name": "rating",
+					"type": "number",
+					"options": {
+						"notNull": true
+					}
+				},
+				{
+					"name": "title",
+					"type": "string",
+					"options": {
+						"length": 255
+					}
+				},
+				{
+					"name": "content",
+					"type": "text"
+				},
+				{
+					"name": "isVerifiedPurchase",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				},
+				{
+					"name": "isApproved",
+					"type": "boolean",
+					"options": {
+						"default": false
+					}
+				},
+				{
+					"name": "helpfulCount",
+					"type": "number",
+					"options": {
+						"default": 0
+					}
+				}
+			],
+			"helperReferences": ["AuditColumns"]
+		}
+	]
+}
