@@ -1,6 +1,6 @@
 {
 	"name": "@malldre/drizzle-schema-generator",
-	"version": "1.0.0",
+	"version": "1.0.01",
 	"description": "Library to generate Drizzle ORM code strings from TypeScript definitions.",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
